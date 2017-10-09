@@ -55,12 +55,13 @@ import java.util.Properties;
 @Import(value = {CitrusSpringConfig.class, SimulatorImportSelector.class, RepositoryConfig.class})
 @ImportResource(
         locations = {
-                "classpath*:citrus-simulator-context.xml",
-                "classpath*:META-INF/citrus-simulator-context.xml"
+                "classpath*:stubs-context.xml",
+                "classpath*:META-INF/stubs-context.xml"
         })
 @PropertySource(
         value = {
-                "META-INF/citrus-simulator.properties"
+                "stubs.properties",
+                "META-INF/stubs.properties"
         }, ignoreResourceNotFound = true)
 @EnableConfigurationProperties(SimulatorConfigurationProperties.class)
 @ConditionalOnProperty(prefix = "citrus.simulator", value = "enabled", havingValue = "true", matchIfMissing = true)

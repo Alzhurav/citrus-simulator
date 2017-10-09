@@ -37,12 +37,12 @@ public class InboundXmlDataDictionaryTest {
         Message translated = dictionary.interceptMessageConstruction(request, MessageType.XML.name(), context);
 
         Assert.assertEquals(translated.getPayload(String.class), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<v1:TestRequest xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\" flag=\"@ignore@\" id=\"@ignore@\" name=\"@ignore@\">\n" +
-                "  <v1:name>@ignore@</v1:name>\n" +
-                "  <v1:id>@ignore@</v1:id>\n" +
-                "  <v1:flag>@ignore@</v1:flag>\n" +
-                "  <v1:restricted>@ignore@</v1:restricted>\n" +
-                "</v1:TestRequest>\n");
+                "<v1:TestRequest xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\" flag=\"@ignore@\" id=\"@ignore@\" name=\"@ignore@\">\r\n" +
+                "  <v1:name>@ignore@</v1:name>\r\n" +
+                "  <v1:id>@ignore@</v1:id>\r\n" +
+                "  <v1:flag>@ignore@</v1:flag>\r\n" +
+                "  <v1:restricted>@ignore@</v1:restricted>\r\n" +
+                "</v1:TestRequest>\r\n");
     }
 
 }

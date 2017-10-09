@@ -19,18 +19,18 @@ public class WsdlScenarioGeneratorTest {
     private ConfigurableListableBeanFactory beanFactory = Mockito.mock(ConfigurableListableBeanFactory.class);
     private DefaultListableBeanFactory beanRegistry = Mockito.mock(DefaultListableBeanFactory.class);
 
-    private String input = "<v1:TestRequest name=\"string\" id=\"100\" flag=\"false\" xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\">\n" +
-            "  <v1:name>string</v1:name>\n" +
-            "  <v1:id>100</v1:id>\n" +
-            "  <v1:flag>true</v1:flag>\n" +
-            "  <v1:restricted>stringstri</v1:restricted>\n" +
+    private String input = "<v1:TestRequest name=\"string\" id=\"100\" flag=\"false\" xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\">\r\n" +
+            "  <v1:name>string</v1:name>\r\n" +
+            "  <v1:id>100</v1:id>\r\n" +
+            "  <v1:flag>true</v1:flag>\r\n" +
+            "  <v1:restricted>stringstri</v1:restricted>\r\n" +
             "</v1:TestRequest>";
 
-    private String output = "<v1:TestResponse name=\"string\" id=\"100\" flag=\"false\" xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\">\n" +
-            "  <v1:name>string</v1:name>\n" +
-            "  <v1:id>100</v1:id>\n" +
-            "  <v1:flag>true</v1:flag>\n" +
-            "  <v1:restricted>stringstri</v1:restricted>\n" +
+    private String output = "<v1:TestResponse name=\"string\" id=\"100\" flag=\"false\" xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\">\r\n" +
+            "  <v1:name>string</v1:name>\r\n" +
+            "  <v1:id>100</v1:id>\r\n" +
+            "  <v1:flag>true</v1:flag>\r\n" +
+            "  <v1:restricted>stringstri</v1:restricted>\r\n" +
             "</v1:TestResponse>";
 
     @Test(dataProvider = "wsdlDataProvider")

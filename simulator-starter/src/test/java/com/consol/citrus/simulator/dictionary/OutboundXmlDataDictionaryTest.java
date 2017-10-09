@@ -34,12 +34,13 @@ public class OutboundXmlDataDictionaryTest {
         Message translated = dictionary.interceptMessageConstruction(request, MessageType.XML.name(), context);
 
         Assert.assertEquals(translated.getPayload(String.class), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<v1:TestResponse xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\" flag=\"false\" id=\"citrus:randomNumber(3)\" name=\"citrus:randomString(6)\">\n" +
-                "  <v1:name>citrus:randomString(6)</v1:name>\n" +
-                "  <v1:id>citrus:randomNumber(3)</v1:id>\n" +
-                "  <v1:flag>true</v1:flag>\n" +
-                "  <v1:restricted>citrus:randomString(10)</v1:restricted>\n" +
-                "</v1:TestResponse>\n");
+                "<v1:TestResponse xmlns:v1=\"http://www.citrusframework.org/schema/samples/TestService/v1\" flag=\"false\"" +
+                " id=\"citrus:randomNumber(3)\" name=\"citrus:randomString(6)\">\r\n" +
+                "  <v1:name>citrus:randomString(6)</v1:name>\r\n" +
+                "  <v1:id>citrus:randomNumber(3)</v1:id>\r\n" +
+                "  <v1:flag>true</v1:flag>\r\n" +
+                "  <v1:restricted>citrus:randomString(10)</v1:restricted>\r\n" +
+                "</v1:TestResponse>\r\n");
     }
 
 }

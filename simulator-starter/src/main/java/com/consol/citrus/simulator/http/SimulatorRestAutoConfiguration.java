@@ -173,6 +173,7 @@ public class SimulatorRestAutoConfiguration {
     }
 
     @Bean(name = "simulatorRestScenarioMapper")
+    @ConditionalOnMissingBean(ScenarioMapper.class)
     public ScenarioMapper simulatorScenarioMapper() {
         if (configurer != null) {
             return configurer.scenarioMapper();

@@ -92,6 +92,7 @@ public class SimulatorEndpointAdapter extends RequestDispatchingEndpointAdapter 
             scenarioName = configuration.getDefaultScenario();
             LOG.info(String.format("Unable to find scenario for mapping '%s' - " +
                     "using default scenario '%s'", mappingName, scenarioName));
+            getTestContext().getGlobalVariables().put("scenario_mapping_name", mappingName);
             scenario = applicationContext.getBean(scenarioName, SimulatorScenario.class);
         }
 

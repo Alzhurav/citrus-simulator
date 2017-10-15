@@ -19,14 +19,24 @@ public class SoapScenarioActionBuilder extends SoapActionBuilder {
         this.scenarioEndpoint = scenarioEndpoint;
     }
 
+    public SoapServerRequestActionBuilder receive(ScenarioEndpoint scenarioEndpoint) {
+        return new SoapServerActionBuilder(action, scenarioEndpoint)
+                .withApplicationContext(applicationContext)
+                .receive();
+    }
+
     /**
      * Default scenario receive operation.
      * @return
      */
     public SoapServerRequestActionBuilder receive() {
+        return receive(scenarioEndpoint);
+    }
+
+    public SoapServerResponseActionBuilder send(ScenarioEndpoint scenarioEndpoint) {
         return new SoapServerActionBuilder(action, scenarioEndpoint)
                 .withApplicationContext(applicationContext)
-                .receive();
+                .send();
     }
 
     /**
@@ -34,9 +44,7 @@ public class SoapScenarioActionBuilder extends SoapActionBuilder {
      * @return
      */
     public SoapServerResponseActionBuilder send() {
-        return new SoapServerActionBuilder(action, scenarioEndpoint)
-                .withApplicationContext(applicationContext)
-                .send();
+        return send(scenarioEndpoint);
     }
 
     /**

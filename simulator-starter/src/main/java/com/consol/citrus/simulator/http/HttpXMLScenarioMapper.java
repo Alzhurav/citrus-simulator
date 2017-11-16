@@ -20,12 +20,15 @@ import com.consol.citrus.endpoint.adapter.mapping.AbstractMappingKeyExtractor;
 import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.http.message.HttpMessage;
 import com.consol.citrus.message.Message;
-import com.consol.citrus.simulator.config.SimulatorConfigurationProperties;
 import com.consol.citrus.simulator.scenario.mapper.ScenarioMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Scenario mapper performs mapping logic on request mapping annotations on given scenarios. Scenarios match on request method as well as
@@ -38,23 +41,26 @@ public class HttpXMLScenarioMapper extends AbstractMappingKeyExtractor implement
     @Autowired(required = false)
     private List<SimulatorXMLScenario> scenarios = new ArrayList<>();
 
-    @Autowired
-    private SimulatorConfigurationProperties configuration;
-
     @Override
     protected String getMappingKey(Message request) {
         if (!(request instanceof HttpMessage)) {
             throw new CitrusRuntimeException("Not support. Error message type");
         }
+        String requestPath = ((HttpMessage) request).getPath();
+        HttpMethod requestMethod = ((HttpMessage) request).getRequestMethod();
 
         for (SimulatorXMLScenario scenario : scenarios) {
-            if (((HttpMessage) request).getPath().equals(scenario.getPath())
-                    && (((HttpMessage) request).getRequestMethod().compareTo(scenario.getMethod()) == 0)) {
+            if (requestPath.equals(scenario.getPath()) && requestMethod.compareTo(scenario.getMethod()) == 0) {
                 return scenario.toString();
             }
         }
 
-        return configuration.getDefaultScenario();
+        String mappingKey = requestMethod.name().toLowerCase()
+                + Stream.of(requestPath.split("/"))
+                .map(pathPart -> StringUtils.capitalize(pathPart))
+                .collect(Collectors.joining());
+
+        return mappingKey;
     }
 
     /**
@@ -73,23 +79,5 @@ public class HttpXMLScenarioMapper extends AbstractMappingKeyExtractor implement
      */
     public void setScenarios(List<SimulatorXMLScenario> scenarios) {
         this.scenarios = scenarios;
-    }
-
-    /**
-     * Gets the configuration.
-     *
-     * @return
-     */
-    public SimulatorConfigurationProperties getConfiguration() {
-        return configuration;
-    }
-
-    /**
-     * Sets the configuration.
-     *
-     * @param configuration
-     */
-    public void setConfiguration(SimulatorConfigurationProperties configuration) {
-        this.configuration = configuration;
     }
 }

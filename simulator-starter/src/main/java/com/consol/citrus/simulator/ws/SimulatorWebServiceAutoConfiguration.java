@@ -105,6 +105,7 @@ public class SimulatorWebServiceAutoConfiguration {
     }
 
     @Bean(name = "simulatorWsScenarioMapper")
+    @ConditionalOnMissingBean(ScenarioMapper.class)
     public ScenarioMapper simulatorScenarioMapper() {
         if (configurer != null) {
             return configurer.scenarioMapper();

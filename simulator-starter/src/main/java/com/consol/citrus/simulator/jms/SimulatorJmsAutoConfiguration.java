@@ -92,6 +92,7 @@ public class SimulatorJmsAutoConfiguration {
     }
 
     @Bean(name = "simulatorJmsScenarioMapper")
+    @ConditionalOnMissingBean(ScenarioMapper.class)
     public ScenarioMapper simulatorScenarioMapper() {
         if (configurer != null) {
             return configurer.scenarioMapper();

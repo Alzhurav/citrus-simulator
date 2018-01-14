@@ -18,6 +18,7 @@ package com.consol.citrus.simulator.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -70,6 +71,10 @@ public class ScenarioExecution implements Serializable {
     @OrderBy("actionId ASC")
     private List<ScenarioAction> scenarioActions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "scenarioExecution", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("messageId ASC")
+    private List<Message> scenarioMessages = new ArrayList<>();
+
     public Long getExecutionId() {
         return executionId;
     }
@@ -115,16 +120,18 @@ public class ScenarioExecution implements Serializable {
     }
 
     public void setErrorMessage(String errorMessage) {
-        try {
-            int size = getClass().getDeclaredField("errorMessage").getAnnotation(Column.class).length();
-            int inLength = errorMessage.length();
-            if (inLength > size) {
-                errorMessage = errorMessage.substring(0, size);
-            }
-        } catch (SecurityException | NoSuchFieldException ex) {
-            LOG.error(String.format("Error truncating error message", errorMessage), ex);
-        }
         this.errorMessage = errorMessage;
+        if(StringUtils.hasLength(this.errorMessage)) {
+            try {
+                int size = getClass().getDeclaredField("errorMessage").getAnnotation(Column.class).length();
+                int inLength = this.errorMessage.length();
+                if (inLength > size) {
+                    this.errorMessage = this.errorMessage.substring(0, size);
+                }
+            } catch (SecurityException | NoSuchFieldException ex) {
+                LOG.error(String.format("Error truncating error message", errorMessage), ex);
+            }
+        }
     }
 
     public Collection<ScenarioParameter> getScenarioParameters() {
@@ -155,6 +162,20 @@ public class ScenarioExecution implements Serializable {
         scenarioAction.setScenarioExecution(null);
     }
 
+    public Collection<Message> getScenarioMessages() {
+        return scenarioMessages;
+    }
+
+    public void addScenarioMessage(Message scenarioMessage) {
+        scenarioMessages.add(scenarioMessage);
+        scenarioMessage.setScenarioExecution(this);
+    }
+
+    public void removeScenarioMessage(Message scenarioMessage) {
+        scenarioMessages.remove(scenarioMessage);
+        scenarioMessage.setScenarioExecution(null);
+    }
+
     @Override
     public String toString() {
         return "ScenarioExecution{" +
@@ -166,6 +187,7 @@ public class ScenarioExecution implements Serializable {
                 ", errorMessage='" + errorMessage + '\'' +
                 ", scenarioParameters=" + scenarioParameters +
                 ", scenarioActions=" + scenarioActions +
+                ", scenarioMessages=" + scenarioMessages +
                 '}';
     }
 }

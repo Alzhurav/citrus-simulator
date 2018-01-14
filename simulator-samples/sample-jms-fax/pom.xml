@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.consol.citrus</groupId>
     <artifactId>citrus-simulator-samples</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -79,7 +79,7 @@
       <version>4.4</version>
     </dependency>
 
-    <!-- XML support -->
+    <!-- XML / JSON support -->
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -125,6 +125,7 @@
         <artifactId>activemq-maven-plugin</artifactId>
         <version>${activemq.version}</version>
         <configuration>
+          <configUri>broker:(tcp://localhost:61616)?useJmx=true&amp;persistent=false</configUri>
           <fork>false</fork>
           <systemProperties>
             <property>

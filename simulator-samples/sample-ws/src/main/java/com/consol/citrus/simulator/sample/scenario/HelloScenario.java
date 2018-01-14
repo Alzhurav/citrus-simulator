@@ -16,7 +16,9 @@
 
 package com.consol.citrus.simulator.sample.scenario;
 
-import com.consol.citrus.simulator.scenario.*;
+import com.consol.citrus.simulator.scenario.AbstractSimulatorScenario;
+import com.consol.citrus.simulator.scenario.Scenario;
+import com.consol.citrus.simulator.scenario.ScenarioDesigner;
 
 /**
  * @author Christoph Deppisch
@@ -30,15 +32,15 @@ public class HelloScenario extends AbstractSimulatorScenario {
             .soap()
             .receive()
             .payload("<Hello xmlns=\"http://citrusframework.org/schemas/hello\">" +
-                        "Say Hello!" +
-                     "</Hello>")
+                    "Say Hello!" +
+                    "</Hello>")
             .soapAction("Hello");
 
         scenario
             .soap()
             .send()
             .payload("<HelloResponse xmlns=\"http://citrusframework.org/schemas/hello\">" +
-                        "Hi there!" +
-                     "</HelloResponse>");
+                    "Hi there!" +
+                    "</HelloResponse>");
     }
 }

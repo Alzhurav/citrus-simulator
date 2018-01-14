@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.consol.citrus</groupId>
     <artifactId>citrus-simulator</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -57,7 +57,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>3.0.0</version>
         <configuration>
           <filesets>
             <fileset>
@@ -94,6 +93,31 @@
             </goals>
             <configuration>
               <arguments>run serve</arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!--
+      This profile can be activated to speed up the maven build when re-building the citrus-simulator-ui module.
+      It skips removal of the npm direcory, avoiding having to re-download all the javascript dependencies again.
+      As long as the javascript dependencies haven't changed you can activate this profile.
+      -->
+      <id>ui-node-modules-skip-clean</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>src/main/resources</directory>
+                  <includes>
+                    <include>static/dist/**</include>
+                  </includes>
+                </fileset>
+              </filesets>
             </configuration>
           </plugin>
         </plugins>

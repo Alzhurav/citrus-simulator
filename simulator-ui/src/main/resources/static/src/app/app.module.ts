@@ -1,7 +1,7 @@
 import {NgModule} from "@angular/core";
 import {BrowserModule} from "@angular/platform-browser";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HttpModule} from "@angular/http";
+import {HttpClientModule } from "@angular/common/http";
 import {AppComponent} from "./components/app.component";
 import {HeaderComponent} from "./components/header/header";
 import {AppRoutingModule, routedComponents} from "./app-routing.module";
@@ -17,6 +17,7 @@ import {ScenarioParameterList} from "./components/scenarios/parameter/scenario-p
 import {ScenarioParameterFormComponent} from "./components/scenarios/parameter/scenario-parameter-form";
 import {ScenarioParameterFormItemComponent} from "./components/scenarios/parameter/scenario-parameter-form-item";
 import {MessageListComponent} from "./components/messages/list/message-list";
+import {MessageHeaderList} from "./components/messages/header/message-header-list";
 import {AboutComponent} from "./components/about/about";
 import {ExecutionStatusPipe} from "./pipes/execution-status-pipe";
 import {TruncatePipe} from "./pipes/truncate-pipe";
@@ -26,7 +27,7 @@ import {ActivityFilterPipe} from "./pipes/activity-filter-pipe";
 @NgModule({
     imports: [
         BrowserModule,
-        HttpModule,
+        HttpClientModule,
         FormsModule,
         ReactiveFormsModule,
         AppRoutingModule
@@ -40,6 +41,7 @@ import {ActivityFilterPipe} from "./pipes/activity-filter-pipe";
         ScenarioParameterFormComponent,
         ScenarioParameterFormItemComponent,
         MessageListComponent,
+        MessageHeaderList,
         AboutComponent,
         ExecutionStatusPipe,
         TruncatePipe,

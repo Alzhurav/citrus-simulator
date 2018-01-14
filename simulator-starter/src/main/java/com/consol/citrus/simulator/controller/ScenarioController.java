@@ -17,22 +17,34 @@
 package com.consol.citrus.simulator.controller;
 
 import com.consol.citrus.simulator.model.ScenarioParameter;
-import com.consol.citrus.simulator.service.ScenarioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.consol.citrus.simulator.service.ScenarioExecutionService;
+import com.consol.citrus.simulator.service.ScenarioLookupService;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/scenario")
 public class ScenarioController {
 
-    @Autowired
-    private ScenarioService scenarioService;
+    private final ScenarioExecutionService scenarioExecutionService;
+    private final ScenarioLookupService scenarioLookupService;
+    private final List<Scenario> scenarios;
 
+    public ScenarioController(ScenarioExecutionService scenarioExecutionService, ScenarioLookupService scenarioLookupService) {
+        this.scenarioExecutionService = scenarioExecutionService;
+        this.scenarioLookupService = scenarioLookupService;
+        this.scenarios = getScenarioList(scenarioLookupService);
+    }
+
+    @Data
     public static class Scenario {
         public enum ScenarioType {
             STARTER,
@@ -41,34 +53,37 @@ public class ScenarioController {
 
         private final String name;
         private final ScenarioType type;
+    }
 
-        public Scenario(String name, ScenarioType type) {
-            this.name = name;
-            this.type = type;
-        }
+    private static List<Scenario> getScenarioList(ScenarioLookupService scenarioLookupService) {
+        final List<Scenario> scenarios = new ArrayList<>();
+        scenarioLookupService.getScenarioNames().forEach(name -> scenarios.add(new Scenario(name, Scenario.ScenarioType.MESSAGE_TRIGGERED)));
+        scenarioLookupService.getStarterNames().forEach(name -> scenarios.add(new Scenario(name, Scenario.ScenarioType.STARTER)));
+        return scenarios;
+    }
 
-        public String getName() {
-            return name;
-        }
-
-        public ScenarioType getType() {
-            return type;
-        }
+    @Data
+    @NoArgsConstructor
+    public static class ScenarioFilter {
+        private String name;
     }
 
     /**
-     * Get a list of scenario names
+     * Get a list of scenarios
      *
      * @param filter
      * @return
      */
-    @RequestMapping(method = RequestMethod.GET)
-    public Collection<Scenario> getScenarioNames(@RequestParam(value = "filter", required = false) String filter) {
-        List<Scenario> scenarios = new ArrayList<>();
-        scenarioService.getScenarioNames().forEach(name -> scenarios.add(new Scenario(name, Scenario.ScenarioType.MESSAGE_TRIGGERED)));
-        scenarioService.getStarterNames().forEach(name -> scenarios.add(new Scenario(name, Scenario.ScenarioType.STARTER)));
-        scenarios.sort(Comparator.comparing(Scenario::getName));
-        return scenarios;
+    @RequestMapping(method = RequestMethod.POST)
+    public Collection<Scenario> getScenarioNames(@RequestBody(required = false) ScenarioFilter filter) {
+        return scenarios.stream()
+                .filter(scenario -> {
+                    if (filter != null && StringUtils.hasText(filter.getName())) {
+                        return scenario.getName().contains(filter.getName());
+                    }
+                    return true;
+                })
+                .sorted(Comparator.comparing(Scenario::getName)).collect(Collectors.toList());
     }
 
     /**
@@ -79,7 +94,7 @@ public class ScenarioController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/parameters/{name}")
     public Collection<ScenarioParameter> getScenarioParameters(@PathVariable("name") String scenarioName) {
-        return scenarioService.lookupScenarioParameters(scenarioName);
+        return scenarioLookupService.lookupScenarioParameters(scenarioName);
     }
 
     /**
@@ -92,7 +107,7 @@ public class ScenarioController {
     public Long launchScenario(
             @PathVariable("name") String name,
             @RequestBody(required = false) List<ScenarioParameter> scenarioParameters) {
-        return scenarioService.run(name, scenarioParameters);
+        return scenarioExecutionService.run(name, scenarioParameters);
     }
 
 }

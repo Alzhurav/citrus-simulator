@@ -20,18 +20,16 @@ import com.consol.citrus.endpoint.adapter.mapping.AbstractMappingKeyExtractor;
 import com.consol.citrus.http.message.HttpMessage;
 import com.consol.citrus.message.Message;
 import com.consol.citrus.simulator.config.SimulatorConfigurationProperties;
-import com.consol.citrus.simulator.scenario.mapper.ScenarioMapper;
 import com.consol.citrus.simulator.scenario.Scenario;
 import com.consol.citrus.simulator.scenario.SimulatorScenario;
+import com.consol.citrus.simulator.scenario.mapper.ScenarioMapper;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Scenario mapper performs mapping logic on request mapping annotations on given scenarios. Scenarios match on request method as well as
@@ -47,74 +45,61 @@ public class HttpRequestAnnotationScenarioMapper extends AbstractMappingKeyExtra
     @Autowired
     private SimulatorConfigurationProperties configuration;
 
-    /** Request path matcher */
-    private PathMatcher pathMatcher = new AntPathMatcher();
+    private HttpRequestAnnotationMatcher httpRequestAnnotationMatcher = HttpRequestAnnotationMatcher.instance();
 
     @Override
     protected String getMappingKey(Message request) {
         if (request instanceof HttpMessage) {
-            String requestPath = ((HttpMessage) request).getPath();
-
-            if (requestPath != null) {
-                for (SimulatorScenario scenario : scenarios) {
-                    RequestMapping requestMapping = AnnotationUtils.findAnnotation(scenario.getClass(), RequestMapping.class);
-                    if (requestMapping != null) {
-                        for (String mappingPath : requestMapping.value()) {
-                            if (mappingPath.equals(requestPath)) {
-                                if (requestMapping.method().length > 0) {
-                                    for (RequestMethod method : requestMapping.method()) {
-                                        if (method.name().equals(((HttpMessage) request).getRequestMethod().name())) {
-                                            return scenario.getClass().getAnnotation(Scenario.class).value();
-                                        }
-                                    }
-                                } else {
-                                    return scenario.getClass().getAnnotation(Scenario.class).value();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                for (SimulatorScenario scenario : scenarios) {
-                    RequestMapping requestMapping = AnnotationUtils.findAnnotation(scenario.getClass(), RequestMapping.class);
-                    if (requestMapping != null) {
-                        for (String mappingPath : requestMapping.value()) {
-                            if (pathMatcher.match(mappingPath, requestPath)) {
-                                if (requestMapping.method().length > 0) {
-                                    for (RequestMethod method : requestMapping.method()) {
-                                        if (method.name().equals(((HttpMessage) request).getRequestMethod().name())) {
-                                            return scenario.getClass().getAnnotation(Scenario.class).value();
-                                        }
-                                    }
-                                } else {
-                                    return scenario.getClass().getAnnotation(Scenario.class).value();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return getMappingKeyForHttpMessage((HttpMessage) request);
         }
-
         return configuration.getDefaultScenario();
     }
 
-    /**
-     * Gets the pathMatcher.
-     *
-     * @return
-     */
-    public PathMatcher getPathMatcher() {
-        return pathMatcher;
+    @Data
+    @Builder
+    private static final class EnrichedScenarioWithRequestMapping {
+        final SimulatorScenario scenario;
+        final RequestMapping requestMapping;
+
+        public boolean hasRequestMapping() {
+            return requestMapping != null;
+        }
+
+        public String name() {
+            return scenario.getClass().getAnnotation(Scenario.class).value();
+        }
     }
 
-    /**
-     * Sets the pathMatcher.
-     *
-     * @param pathMatcher
-     */
-    public void setPathMatcher(PathMatcher pathMatcher) {
-        this.pathMatcher = pathMatcher;
+    protected String getMappingKeyForHttpMessage(HttpMessage httpMessage) {
+        Optional<String> mapping = scenarios.stream()
+                .map(scenario -> EnrichedScenarioWithRequestMapping.builder()
+                        .scenario(scenario)
+                        .requestMapping(AnnotationUtils.findAnnotation(scenario.getClass(), RequestMapping.class))
+                        .build()
+                )
+                .filter(EnrichedScenarioWithRequestMapping::hasRequestMapping)
+                .filter(swrm -> httpRequestAnnotationMatcher.checkRequestPathSupported(httpMessage, swrm.getRequestMapping(), true))
+                .filter(swrm -> httpRequestAnnotationMatcher.checkRequestMethodSupported(httpMessage, swrm.getRequestMapping()))
+                .filter(swrm -> httpRequestAnnotationMatcher.checkRequestQueryParamsSupported(httpMessage, swrm.getRequestMapping()))
+                .map(EnrichedScenarioWithRequestMapping::name)
+                .findFirst();
+
+        if (!mapping.isPresent()) {
+            mapping = scenarios.stream()
+                    .map(scenario -> EnrichedScenarioWithRequestMapping.builder()
+                            .scenario(scenario)
+                            .requestMapping(AnnotationUtils.findAnnotation(scenario.getClass(), RequestMapping.class))
+                            .build()
+                    )
+                    .filter(EnrichedScenarioWithRequestMapping::hasRequestMapping)
+                    .filter(swrm -> httpRequestAnnotationMatcher.checkRequestPathSupported(httpMessage, swrm.getRequestMapping(), false))
+                    .filter(swrm -> httpRequestAnnotationMatcher.checkRequestMethodSupported(httpMessage, swrm.getRequestMapping()))
+                    .filter(swrm -> httpRequestAnnotationMatcher.checkRequestQueryParamsSupported(httpMessage, swrm.getRequestMapping()))
+                    .map(EnrichedScenarioWithRequestMapping::name)
+                    .findFirst();
+        }
+
+        return mapping.orElse(configuration.getDefaultScenario());
     }
 
     /**
